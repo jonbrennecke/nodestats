@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<nodemap>
+	<edf id="edf" src="../testfile.edf">
+		<out to="int1:data" />
+	</edf>
+	<!-- every 10s -->
+	<interval id="int1" duration="10s">
+		<out to="int2:data" />
+	</interval>
+	<!--  -->
+	<interval id="int2" duration="10ms">
+		<out to="excel:data" />
+	</interval>
+	<excel id="excel">
+		<!-- <header></header> -->
+		<!-- <out to="root:in" /> -->
+	</excel>
+	<root id="root">
+		
+	</root>
+</nodemap>
