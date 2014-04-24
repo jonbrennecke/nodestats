@@ -46,8 +46,6 @@ WSClient.prototype = {
 
 function Application () {
 	this.wsclient = new WSClient( 'localhost', '8888' );
-
-	document.getElementById('menu').addEventListener('botany__search', this.search, false );
 };
 
 Application.prototype = {
@@ -72,14 +70,6 @@ Application.prototype = {
 	    }, false);
 
 	    input.click();  
-	},
-
-	search : function ( e ) {
-
-		$( "#search" ).fadeIn(500)
-
-
-		// console.log( e.detail.node )
 	}
 
 };

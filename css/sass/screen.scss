@@ -1,16 +1,14 @@
 
 @import url("http://fonts.googleapis.com/css?family=Open+Sans:400,300");
 @import "compass/reset";
-@import "functions";
 @import "editor";
-@import "menu";
 @import "botany";
 
 $highlight: #f26522;
 
 #wrap {
 	position: absolute;
-	background: -webkit-linear-gradient(top, #fff, #eee);
+	// background: -webkit-linear-gradient(top, #fff, #eee);
 	width: 100%;
 	height: 100%;
 }

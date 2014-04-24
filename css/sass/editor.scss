@@ -1,126 +1,53 @@
 #wrap {
 	#editor {
-		@include menu-editor;
-		z-index: 1;
-		width: 80%;
-		box-shadow: 0px 0px 50px 0px rgba(0,0,0,0.2);
+		position: relative;
+		width: 100%;
+		height: 100%;
 		border-left: 1px solid #fff;
 		overflow: hidden;
+	}
 
-		.node {
+	$tab-bg: #ccc;
+
+	#menu {
+		display: none;
+		position: absolute;
+		top: 0;
+		left: 2em;
+		width: 10em;
+		height: 2em;
+		background: $tab-bg;
+		border-bottom-left-radius: 1em;
+		border-bottom-right-radius: 1em;
+
+		&::before {
+			content: '';
 			position: absolute;
-			top: 50px;
-			left: 50px;
-			height: 3em;
-			width: 3em;
-			border-radius: 50%;
-			z-index: 1000;
-			box-shadow: 
-				0px 0px 100px 0px rgba(0,0,0,0.1),
-				0px 1px 1px 0px #fff inset;
-			background: -webkit-linear-gradient(top,#eee,#ddd);
-			border: 1px solid #ccc;
-			cursor: pointer;
-
-			&.botany__menu {
-				border-radius: 2em;
-				width: 10em;
-				height: 50px;
-				z-index: 1001;
-			}
-
-			@mixin io {
-				width: 10%;
-				float: left;
-				height: 100%;
-				box-sizing: border-box;
-			}
-
-			@mixin bullets {
-				ul {
-					li {
-						position: relative;
-						height: 15px;
-						margin: 15px 0;
-						margin-left: 50%;
-
-						h1 {
-
-							$tooltip: #fdc689;
-
-							display: none;
-							position: absolute;
-							left: 300%;
-							padding: 0.5em 2em;
-							margin-top: -0.5em;
-							border: 1px solid darken( $tooltip, 20% );
-							border-radius: 0.25em;
-							background: $tooltip;
-							font-family: "Open Sans", sans-serif;
-							font-weight: lighter;
-							font-size: 10pt;
-							box-shadow: 0px 0px 15px rgba(#000,0.1);
-							z-index: 2;
-						}
-
-						&::before {
-							content: '';
-							position: absolute;
-							height: 15px;
-							width: 15px;
-							border-radius: 50%;
-							background: -webkit-linear-gradient(top,#eee,#ddd);
-							border: 1px solid #bbb;
-						}
-
-						&.drag {
-							&::before {
-								z-index: 2;
-							}
-						}
-
-						&.lightup {
-							&::before {
-								box-shadow: 0px 0px 15px rgba(#2e3192,0.0);
-								// -webkit-animation: pulse 1s infinite alternate;
-							}
-						}
-
-					}
-				}
-			}
-
-			.inputs {
-				@include io;
-				@include bullets;
-
-				ul {
-					li {
-						margin-left: -50%;
-
-						h1 {
-							left: -350%;
-						}
-					}
-				}
-			}
-
-			.fields {
-				width: 80%;
-				height: 100%;
-				float: left;
-				box-sizing: border-box;
-			}
-
-			.outputs {
-				@include io;
-				@include bullets;
-			}
+			// border: 1px solid red;
+			right: 100%;
+			top: -1px;
+			height: 1.5em;
+			width: 1.5em;
+			// border-radius: 50%;
+			background: red;
 		}
 	}
-}
 
-@-webkit-keyframes pulse {
-	0% { box-shadow: 0px 0px 15px rgba(red,0); }
-	100% { box-shadow: 0px 0px 15px rgba(red,0.5); }
+	// .menu__corner.left {
+	// 	position: absolute;
+	// 	width: 2em;
+	// 	height: 2em;
+	// 	top: 0;
+	// 	left: 0;
+
+	// 	&::before {
+	// 		background: $tab-bg;
+	// 		position: absolute;
+	// 		content: '';
+	// 		width: 1em;
+	// 		height: 1em;
+	// 		right: 0;
+	// 		top: 0;
+	// 	}
+	// }
 }

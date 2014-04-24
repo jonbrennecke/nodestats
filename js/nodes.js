@@ -24,9 +24,7 @@ function Node ( options ) {
 
 	// append node element
 	this.element = $("<div class='node'>" + 
-		"<div class='inputs'></div>" +
-		"<div class='fields'></div>" +
-		"<div class='outputs'></div>" +
+		"<form class='fields'></form>" +
 		"</div>" )
 		.appendTo("#editor")
 		.draggable({ confinement : 'parent', handle : 'div.fields' })

@@ -13,6 +13,7 @@
 /**
  * Tree object
  *
+ * @param parent - jQuery element over which to create the Tree
  */
 
 function Tree ( parent ) {
@@ -80,6 +81,16 @@ Tree.prototype = {
 		};
 	},
 
+	/**
+	 * apply 'callback' to each node in the Tree
+	 *
+	 */
+	each : function ( callback ) {
+		for (var i = 0; i < this.nodes.length; i++) {
+			callback( this.nodes[i], i );
+		};
+	},
+
 
 	/**
 	 * redraw node linkages
@@ -91,15 +102,42 @@ Tree.prototype = {
 
 		this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height )
 
-		this.walk( function ( parent, child ) {
-			this.ctx.beginPath()
-			this.ctx.shadowBlur = 15;
-			this.ctx.shadowColor = "#000";
-			this.ctx.lineWidth = 1;
-			this.ctx.strokeStyle = "rgba(0,0,0,0.25)";
-			this.ctx.moveTo( parent.position.left, parent.position.top );
-			this.ctx.quadraticCurveTo( child.position.left, parent.position.top, child.position.left, child.position.top )
-			this.ctx.stroke()
+		var self = this;
+
+		this.each( function ( node ) {
+			node.walk( function ( parent, field, index ) {
+				self.ctx.beginPath()
+				self.ctx.shadowBlur = 15;
+				self.ctx.shadowColor = "#000";
+				self.ctx.lineWidth = 1;
+				self.ctx.strokeStyle = "rgba(0,0,0,0.25)";
+
+				
+				for (var i = 0; i < field.links.length; i++) {
+
+					var linkPos = field.links[i].position,
+						helperPos = field.links[i].helperPosition
+
+					// draw any connected links
+					for ( var j=0; j < field.links[i].children.length; j++ ) {
+						var childPos = field.links[i].children[j].position;
+
+						self.ctx.moveTo( linkPos.left, linkPos.top );
+						self.ctx.quadraticCurveTo( childPos.left, linkPos.top, childPos.left, childPos.top );
+						self.ctx.stroke();
+					};
+
+					// draw any links that are being dragged
+					if ( helperPos.left != 10 && helperPos.top != 10 ) {
+						self.ctx.moveTo( linkPos.left, linkPos.top );
+						self.ctx.quadraticCurveTo( helperPos.left, linkPos.top, helperPos.left, helperPos.top );
+						self.ctx.stroke();
+					}
+					
+				};
+
+			});
+
 		});
 
 	},
@@ -165,7 +203,7 @@ Tree.prototype = {
 	 *
 	 */
 	click : function ( e ) {
-		if ( ! e.target.className.match( "node" ) ) {
+		if ( ! e.target.className.match( "botany__node" ) ) {
 			this.parent.get(0).dispatchEvent( this.clickout )
 		};
 	}
@@ -181,19 +219,19 @@ Tree.prototype = {
 function Node ( tree ) {
 	this.tree = tree;
 	this.children = [];
+	this.fieldlist =[];
 	this.discovered = false;
 
-	this.element = $("<div></div>")
+	this.element = $("<div class='botany__node'></div>" )
 		.appendTo( this.tree.parent )
-		.addClass('node')
 		.draggable({
 			drag : this.drag.bind( this )
 		})
 		.click( this.click.bind( this ) )
 
-	this.tree.parent.get(0).addEventListener( 'botany__clickout', this.clickout.bind( this ), false );
+	this.form = $( "<form class='botany__node__fields'></form>" ).appendTo( this.element );
 
-	this.searchEvent = new CustomEvent( 'botany__search', { detail : { node : this } });
+	this.tree.parent.get(0).addEventListener( 'botany__clickout', this.clickout.bind( this ), false );
 
 };
 
@@ -221,27 +259,51 @@ Node.prototype = {
 	},
 
 	/**
+	 * add a field to the node
+	 *
+	 */
+	fields : function ( fields ) {
+
+		for (var i = 0; i < fields.length; i++) {
+			this.fieldlist.push( new Field( this, fields[i] ) )
+			this.form.append( this.fieldlist[ this.fieldlist.length - 1 ].html() )
+		};
+		
+	},
+
+	/**
+	 * traverse each of the node's fields with 'callback'
+	 *
+	 *
+	 * @param callback - callback function to apply to each of the node's fields
+	 *
+	 */
+	walk : function ( callback ) {
+		for (var i = 0; i < this.fieldlist.length; i++) {
+			callback( this, this.fieldlist[i], i )
+		};
+	},
+
+	/**
 	 * 
 	 *
 	 */
-	search : function () {
-		document.getElementById('menu').dispatchEvent( this.searchEvent )
-	},
-
 	addChild : function ( node ) {
 
 		// the addChild function is called by an event listener on the new node (+) button
 		// in which case, param 'node' is an event instance, not a node
-		if ( ! ( node instanceof Node ) ) {
-			node = this.tree.seed();
-		};
+		// if ( ! ( node instanceof Node ) ) {
+		// 	node = this.tree.seed();
+		// };
 
-		this.children.push( node );
+		console.log( node )
 
-		// TODO put this somewhere else
-		this.tree.autoOrganize( this.tree.root, 10, this.tree.parent.width() / 2 )
+		// this.children.push( node );
 
-		this.tree.redraw();
+		// // TODO put this somewhere else
+		// this.tree.autoOrganize( this.tree.root, 10, this.tree.parent.width() / 2 )
+
+		// this.tree.redraw();
 	},
 
 	/**
@@ -267,9 +329,9 @@ Node.prototype = {
 
 
 	naviconActions : function ( ) {
-		this.element.find('.botany__addChild').click( this.addChild.bind( this ) );
-		this.element.find('.botany__removeNode').click( this.removeNode.bind( this ) );
-		this.element.find('.botany__search').click( this.search.bind( this ) );
+		// this.element.find('.botany__addChild').click( this.addChild.bind( this ) );
+		// this.element.find('.botany__removeNode').click( this.removeNode.bind( this ) );
+		// this.element.find('.botany__search').click( this.search.bind( this ) );
 	},
 
 	/* ~~~~~~~~~~~~~~~~~ events ~~~~~~~~~~~~~~~~~ */ 
@@ -279,17 +341,17 @@ Node.prototype = {
 	},
 
 	click : function ( e ) {
-		this.element.addClass( 'botany__menu', 500, 'easeOutQuad', function () {
+		// this.element.addClass( 'botany__menu', 500, 'easeOutQuad', function () {
 			
-			// add the navicons
-			this.element.append( "<div class='botany__navicon botany__addChild'>+</div>" +
-				"<div class='botany__navicon botany__removeNode'>-</div>" +
-				"<div class='botany__navicon botany__search'>&#9906;</div>" );
+		// 	// add the navicons
+		// 	this.element.append( "<div class='botany__navicon botany__addChild'>+</div>" +
+		// 		"<div class='botany__navicon botany__removeNode'>-</div>" +
+		// 		"<div class='botany__navicon botany__search'>&#9906;</div>" );
 
-			// and tell the navicons what to do
-			this.naviconActions();
+		// 	// and tell the navicons what to do
+		// 	this.naviconActions();
 
-		}.bind( this ) );
+		// }.bind( this ) );
 	},
 
 
@@ -305,6 +367,181 @@ Node.prototype = {
 		}.bind( this ) );
 	}
 
+};
+
+
+/**
+ *
+ * Field object
+ *
+ * @param node - parent node object
+ * @param def - field definition
+ */
+function Field ( node, def ) {
+	
+	// maintain a reference to the parent node
+	this.node = node;
+
+	// store the NodeLink obects in an array
+	this.links = [];
+
+	// a field may have incoming and outgoing links
+	if ( def.outgoing ) this.links.push( new NodeLink( this.node, true ) );
+	if ( def.incoming ) this.links.push( new NodeLink( this.node, false ) );
+
+	// basic field container element is a span tag
+	this.element = $( "<span class='field'></span>" );
+
+	// determine the field type
+	switch ( def.type ) {
+		case "number" :
+			this.type = "number"
+			break;
+		case "array" :
+			this.type = "array"
+			break;
+		case "string" :
+			this.type = "string"
+			break;
+		case "color" :
+			this.type = "color"
+			break;
+		default :
+			break;
+	}
+
+	// if the 'label' is defined, append it to the element within a paragraph tag
+	if ( def.label ) {
+		this.label = def.label;
+		$("<p class='field__label'>" + this.label + "</p>").appendTo( this.element )
+	};
+
+	// add all the link elements
+	for (var i = 0; i < this.links.length; i++) {
+		this.element.append( this.links[i].html() )
+	};
+};
+
+Field.prototype = {
+
+	/**
+	 *
+	 * @return - jQuery element
+	 */
+	html : function () {
+		return this.element
+	}
+
+};
+
+
+/**
+ *
+ *
+ * @param out (boolean) - whether the node is outgoing (true) or incoming (false)
+ */
+function NodeLink ( node, out ) {
+	
+	// maintain a reference to the parent node
+	this.node = node;
+	this.children = [];
+
+	this.element = $( "<a class='node__link " + ( out ? "outgoing" : "incoming" ) + "'></a>" );
+	this.element.click( this.click.bind( this ) );
+	this.element.get(0).data = this;
+
+	this.helperElement = $( "<a class='node__link helper' draggable='true'></a>");
+
+	this.element.draggable({
+		drag : this.drag.bind( this ),
+		helper : this.helper.bind( this ),
+		stop : this.stop.bind( this ),
+		revert : 'invalid',
+		revertDuration : 100,
+		snap : '.node__link',
+		snapMode : 'inner'
+	}).droppable({
+		accept : ".node__link",
+		drop : this.drop.bind( this )
+	})
+};
+
+NodeLink.prototype = {
+
+	constructor : NodeLink,
+
+	get position () {
+		var offset = this.element.offset();
+		return { top : offset.top + 10, left : offset.left + 10 }
+	},
+
+	set position ( offset ) {
+		// TODO
+	},
+
+	get helperPosition () {
+		var offset = this.helperElement.offset();
+		return { top : offset.top + 10, left : offset.left + 10 }
+	},
+
+	set helperPosition ( offset ) {
+		// TODO
+	},
+	
+	/**
+	 *
+	 * @return - jQuery element
+	 */
+	html : function () {
+		return this.element
+	},
+
+	helper : function () {
+		return this.helperElement;
+	},
+
+	/**
+	 * Connect the nodes
+	 *
+	 */
+	connect : function ( node ) {
+		this.children.push( node );
+
+		node.element.draggable( "disable" );
+		// this.
+		this.node.tree.redraw()
+	},
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ events ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+	drag : function () {
+		this.node.tree.redraw();
+	},
+
+	stop : function ( ) {
+		this.node.tree.redraw();
+	},
+
+	/**
+	 *
+	 * called when an 'acceptable' droppable is dropped over the element
+	 *
+	 */
+	drop : function ( e, ui ) {
+
+		// reset the draggable
+		// if this doesn't happen, tree.redraw() will draw curves to both the helper and the linked node
+		ui.helper.offset( { top : 0, left : 0 } );
+
+		// if a NodeLink is dropped, connect the nodes
+		if ( ui.draggable.get(0).data instanceof NodeLink ) {
+			ui.draggable.get(0).data.connect( this );
+		}
+	},
+
+	click : function ( e, ui ) {
+		
+	}
 };
 
 
